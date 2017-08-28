@@ -131,46 +131,49 @@ PHP_FUNCTION(marmot_encode) {
 
 PHP_FUNCTION(marmot_decode) {
 
- 	char *input, *result, *convert_str, *out_put;
-	size_t input_len, result_len;
-	int i, ord_long;
-	zend_string *ret, *zend_input_string;
-	// zend_string &
+        char *input, *result, *convert_str, *out_put;
+        size_t input_len, result_len;
+        int i, ord_long;
+        zend_string *ret, *zend_input_string;
+        // zend_string &
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &input, &input_len) == FAILURE) {
-			return;
-	}
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &input, &input_len) == FAILURE) {
+                return;
+        }
 
-	zend_input_string = zend_string_init(input, input_len, 0);
-	convert_str = php_strtr(ZSTR_VAL(zend_input_string),ZSTR_LEN(zend_input_string), "-_", "+/", 2);
+        zend_input_string = zend_string_init(input, input_len, 0);
+        convert_str = php_strtr(ZSTR_VAL(zend_input_string),ZSTR_LEN(zend_input_string), "-_", "+/", 2);
 
-	ret = php_base64_decode_ex((unsigned char*)convert_str, input_len, 1);
+        ret = php_base64_decode_ex((unsigned char*)convert_str, input_len, 1);
+        if (ret == NULL) {
+                RETURN_FALSE;
+        }
 
-  out_put = ZSTR_VAL(ret);
-	result_len = ZSTR_LEN(ret);
+        out_put = ZSTR_VAL(ret);
+        result_len = ZSTR_LEN(ret);
 
-	result = (char *)emalloc(result_len+1);
-  for(i=0; i<result_len; i++)
-  {
-      ord_long = (int)((unsigned char)out_put[i]);
-      switch(i%6)
-      {
-          case 0:
-              result[i] = (char)(ord_long+1);
-              break;
-          case 1:
-              result[i] = (char)(ord_long+5);
-              break;
-          case 2:
-              result[i] = (char)(ord_long+7);
-              break;
-          case 3:
-              result[i] = (char)(ord_long+2);
-              break;
-          case 4:
-              result[i] = (char)(ord_long+4);
-              break;
-          case 5:
+        result = (char *)emalloc(result_len+1);
+        for(i=0; i<result_len; i++)
+        {
+                ord_long = (int)((unsigned char)out_put[i]);
+                switch(i%6)
+                {
+                        case 0:
+                                result[i] = (char)(ord_long+1);
+                                break;
+                        case 1:
+                                result[i] = (char)(ord_long+5);
+                                break;
+                        case 2:
+                                result[i] = (char)(ord_long+7);
+                                break;
+                        case 3:
+                                result[i] = (char)(ord_long+2);
+                                break;
+                        case 4:
+                                result[i] = (char)(ord_long+4);
+                                break;
+                        case 5:
               result[i] = (char)(ord_long+9);
               break;
           default:;
